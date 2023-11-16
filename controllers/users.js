@@ -50,10 +50,17 @@ module.exports = {
                 message: "Data berhasil ditambahkan"
             })
         } catch (error) {
-            res.status(400).json({success: false})
-        }   
-      },
-      update: async (req, res) => {
+            if (error.name === 'ValidationError') {
+                // Handle validation errors
+                const errors = Object.values(error.errors).map(err => err.message);
+                res.status(400).json({ success: false, errors });
+            } else {
+                res.status(500).json({ success: false, message: "Internal Server Error" });
+            }
+        }
+    },
+    
+    update: async (req, res) => {
         try {
             const user = await User.findByIdAndUpdate(req.params.id, req.body, {
                 new: true,
@@ -66,11 +73,18 @@ module.exports = {
                 url: req.url,
                 message: "Data berhasil diubah"
             })
-
+    
         } catch (error) {
-            res.status(400).json({success: false})
+            if (error.name === 'ValidationError') {
+                // Handle validation errors
+                const errors = Object.values(error.errors).map(err => err.message);
+                res.status(400).json({ success: false, errors });
+            } else {
+                res.status(500).json({ success: false, message: "Internal Server Error" });
+            }
         }
-      },
+    },
+    
       delete: async (req, res) => {
         try {
             await User.findByIdAndDelete(req.params.id)
